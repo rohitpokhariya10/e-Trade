@@ -1,35 +1,40 @@
-import React, { createContext, useEffect, useState } from 'react'
-import axios from "axios";
+import React, { createContext, useEffect, useState } from "react";
+import { getData } from "../api/ProductAPI";
 
-// Context create kara 
+//  Context create kiya taaki products ka data globally available ho
 export const ProductDataContext = createContext();
 
 const ProductContext = ({ children }) => {
-  //Basically hum is file se sirf API ke data ko globally available bna rhe hai
-  //taki koi bhi component us ekar paye easily without prop drilling
 
+  //  productsData me hum API se aane wala products ka array store karenge
   const [productsData, setProductsData] = useState([]);
-  
 
-  const getData = async () => {
-    try {
-      const response = await axios.get('https://fakestoreapi.com/products');
-     // console.log(response.data)
-     //ui me set krdo data ko
-     setProductsData(response.data)
-      
-    } catch (error) {
-      console.log("Error fetching products", error);
-   
-    }
-  };
-  //sirf 1 render me chalega
+  //  useEffect isliye use kar rahe hain kyunki
+  //    hume API call sirf component ke first render ke baad ek hi baar karni hai
   useEffect(() => {
-    getData();
-  }, []);
+
+    // ❗ API call async hoti hai aur Promise return karti hai
+    // ❗ await sirf async function ke andar kaam karta hai
+    //  isliye hum useEffect ke andar ek alag async function bana rahe hain
+    const fetchData = async () => {
+      
+      //  getData() Promise return karta hai
+      //  await se hum actual data (array) nikaal rahe hain
+      const data = await getData();
+
+      // ab Promise nahi balki actual array ko state me set kar rahe hain
+      setProductsData(data);
+    };
+
+    //  async function ko manually call karna padta hai
+    fetchData();
+
+  }, []); //  empty dependency array ka matlab: sirf 1 baar run hoga
 
   return (
-    <ProductDataContext.Provider value={{ productsData}}>
+    //  Context Provider ke through productsData ko
+    //    poore app me available kara rahe hain
+    <ProductDataContext.Provider value={{ productsData }}>
       {children}
     </ProductDataContext.Provider>
   );

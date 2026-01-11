@@ -3,9 +3,26 @@ import { Link } from "react-router-dom";
 import { ProductDataContext } from "../Context/ProductContext";
 import Loader from "../Components.jsx/Loader";
 
+/* ===== DROPDOWN ITEM ===== */
+// ye component hai reusable component bnalia
+function DropdownItem({ children, onClick, active }) {
+  return (
+    <div
+      onClick={onClick}
+      className={`px-5 py-3 text-sm cursor-pointer transition
+        ${active ? "bg-blue-50 text-blue-600 font-medium" : "hover:bg-gray-100"}
+      `}
+    >
+      {children}
+    </div>
+  );
+}
+
+
 
 
 const Products = () => {
+  
   //Context se productsData nikal rahe hainIska fayda: agar kisi aur component ne
   //products fetch karke Context me dala hua hai, yahan seedha mil jayega.
   const { productsData } = useContext(ProductDataContext);
@@ -20,7 +37,9 @@ const Products = () => {
   const [sortedProducts, setSortedProducts] = useState([]);
 
   // SORT LOGIC
-  //sortType ke response me product ko sort karrha hai 
+  //sortType ke response me product ko sort karrha hai useEffect isliye use hua kyunki sorting ek reaction hai,
+  //useEffect isliye use hua kyunki sorting ek reaction hai,
+  //jo data ya option change hone par chalni chahiye,har render par nahi.
   useEffect(() => {
     if (!productsData) return;
     //productsData ki copy bnaye temp array--> sort perform krenge
@@ -38,14 +57,17 @@ const Products = () => {
     //upar sorting logic ke basis me ui me products render karo
     setSortedProducts(temp);
     
-  }, [productsData, sortType]);
+  }, [productsData, sortType]);//useEffect kab chalana hai--> productsData change ho ya fir jab bhi user sort krega product ko tab
 
 
 //Safety check
+//prodyctsData nhi aya ya fir [] empty array aye ho productsData me tab <Loader/> dikhao
 if (!productsData || productsData.length === 0) {
   return <Loader />;
 }
+   
 
+//sortType ke according label/text ayega
   const getLabel = () => {
     if (sortType === "lowToHigh") return "Price: Low to High";
     if (sortType === "highToLow") return "Price: High to Low";
@@ -81,7 +103,7 @@ if (!productsData || productsData.length === 0) {
             //toggle effect in drowpdown menu
               onClick={() => setOpen(!open)}
               className="flex items-center justify-between gap-3
-                         bg-white border border-blue-300 rounded-lg
+                         bg-white border border-black rounded-lg
                          px-5 py-2 text-sm font-medium text-gray-800
                          hover:bg-gray-50 transition min-w-[200px]"
             >
@@ -98,10 +120,13 @@ if (!productsData || productsData.length === 0) {
 
             {/* DROPDOWN MENU */}
             {open && (
+              // yhi hai dropdownmenu ka div
               <div
-                className="absolute right-0 mt-2 w-full bg-white rounded-lg
-                           shadow-lg border border-gray-200 z-20 overflow-hidden"
-              >
+                className="hiii absolute  z-20 mt-2 w-full bg-white rounded-lg
+                           shadow-lg border border-gray-200  overflow-hidden"
+              > 
+              {/* <DropdownItem> YE hai parent  */}
+              {/* Children hai --> recommended , price high to low, low to high */}
                 <DropdownItem
                   active={sortType === "default"}
                   onClick={() => {
@@ -185,19 +210,5 @@ if (!productsData || productsData.length === 0) {
     </div>
   );
 };
-
-/* ===== DROPDOWN ITEM ===== */
-function DropdownItem({ children, onClick, active }) {
-  return (
-    <div
-      onClick={onClick}
-      className={`px-5 py-3 text-sm cursor-pointer transition
-        ${active ? "bg-blue-50 text-blue-600 font-medium" : "hover:bg-gray-50"}
-      `}
-    >
-      {children}
-    </div>
-  );
-}
 
 export default Products;
