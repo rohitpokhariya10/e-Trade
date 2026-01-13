@@ -8,20 +8,51 @@ const Home = () => {
   const { productsData } = useContext(ProductDataContext);
 
   // 🛑 SAFETY CHECK (MANDATORY)
+  //API late aaye ya fail hojaye tuh app crash nahi honi chahiye
   if (!productsData || productsData.length === 0) {
     return <Loader />;
   }
 
   // Hero product (real ecommerce trick)
+  //First product ko hi hero product bna lia No extra filter
   const heroProduct = productsData[0];
 
+
   // 🔥 Category → representative product map
+  //Is object me main category ke hisaab se product store karrahe hai
+  // 🔹 Step 1: Ek empty object bana rahe hain
+  // Is object ka kaam hai:
+  //  har category ka sirf EK representative product store karna
+  // Example final result:
+  // {
+  //   men: { product object },
+  //   women: { product object },
+  //   electronics: { product object }
+  // }
   const categoryMap = {};
+
+  // 🔹 Step 2: Sare products par ek-ek karke loop lagate hain
   productsData.forEach((product) => {
+    //console.log(product);//har ek product milega obj ki form me
+
+    // 🔹 Step 3: Check kar rahe hain ki
+    // kya is product ki category pehle se categoryMap me exist karti hai ya nahi
+    // product.category = "men", "women", etc.
+    // categoryMap[product.category] → undefined means pehli baar aa rahi hai
     if (!categoryMap[product.category]) {
+
+      // 🔹 Step 4: Agar category pehli baar aa rahi hai
+      // toh us category ke naam se is product ko store kar do
+      // ye ensure karta hai ki har category ka sirf ek product ho
       categoryMap[product.category] = product;
     }
+
+    // 🔹 Agar category pehle se exist karti hai
+    // toh kuch nahi karte (duplicate category ignore)
   });
+  console.log(categoryMap);
+
+
 
   return (
     <div className="bg-red text-gray-900 ">
@@ -65,10 +96,12 @@ const Home = () => {
           />
 
           <div className="absolute top-10 right-10 bg-white px-4 py-2 rounded-xl shadow text-sm font-semibold">
+            {/* API me prize dollar me hai tuh ($to indian rupee conversion) */}
             From ₹{Math.round(heroProduct.price * 80)}
           </div>
         </div>
       </section>
+
 
       {/* ================= CATEGORY SECTION (REAL DATA) ================= */}
       <section className="max-w-7xl mx-auto px-6 py-14">
@@ -78,10 +111,16 @@ const Home = () => {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
           {Object.keys(categoryMap).map((cat, i) => {
+            console.log(cat);//current product ki key jo ki --> category hai
+            console.log(i);//index
+
+            //object me dynamically  runtime me category-->cat key ko access kar rhehai
             const product = categoryMap[cat]; // 🔥 actual product
+            console.log(product);
 
             return (
               <div
+              //  map vali key hai ye jo deni jaruri hoti hai taki react ko pata chale ki ye kya hai 
                 key={i}
                 className="bg-white rounded-2xl p-5 hover:shadow-xl transition group flex flex-col"
               >
@@ -96,11 +135,13 @@ const Home = () => {
 
                 {/* Category name */}
                 <p className="text-sm font-semibold text-gray-800 capitalize text-center mb-4">
+                  {/* category ka name */}
                   {cat}
                 </p>
 
                 {/* 👉 VIEW DETAILS (opens THAT product only) */}
                 <Link
+                  //Dynamic Route
                   to={`/products/${product.id}`}
                   className="mt-auto text-center bg-black text-white text-xs py-2 rounded-full hover:bg-gray-800 transition"
                 >
@@ -125,6 +166,9 @@ const Home = () => {
             </span>
 
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-3 leading-snug">
+              {/* optional chaining --->agr productsData[1] exist karta hai tabhi title access karo */}
+              {/* agar productsData[1].title  nhi hoga tuh crash nhi hoga kuch nhi dikhega simple*/}
+              {/* ?.optional chaining */}
               {productsData[1]?.title}
             </h2>
 
